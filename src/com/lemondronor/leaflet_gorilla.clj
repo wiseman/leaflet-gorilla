@@ -2,7 +2,8 @@
   ""
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [gorilla-renderable.core :as render]))
+            [gorilla-renderable.core :as render]
+            [selmer.parser :as selmer]))
 
 (set! *warn-on-reflection* true)
 
@@ -33,31 +34,39 @@
 
 
 (defn leaflet-view [points & opts]
-  (LeafletView. points opts))
+  (LeafletView. points (apply hash-map opts)))
 
 
-;; <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-;;  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+(def default-options
+  {:width 400
+   :height 400
+   :leaflet-js-url "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"
+   :leaflet-css-url "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"
+   :tile-layer-url "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+   :color "steelblue"
+   :opacity 1.0})
+
 
 (def content-template
   "<div>
-<div id='map' style='height: %spx; width: %spx;'></div>
+<div id='{{map-id}}' style='height: {{height}}px; width: {{width}}px;'></div>
 <script type='text/javascript'>
 $(function () {
   $('<link>')
     .attr('rel', 'stylesheet')
-    .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')
+    .attr('href', '{{leaflet-css-url}}')
     .appendTo('head');
   $('<script>')
-    .attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')
+    .attr('src', '{{leaflet-js-url}}')
     .appendTo('head');
   setTimeout(function() {
-    var map = L.map('map')
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')
+    var map = L.map('{{map-id}}')
+    L.tileLayer('{{tile-layer-url}}')
         .addTo(map);
     var geoJson = L.geoJson(
-      %s,
-      {style: function() { return '%s'; }});
+      {{geojson}},
+      {style: {'color': '{{color}}',
+               'opacity': {{opacity}}}});
     geoJson.addTo(map);
     map.fitBounds(geoJson.getBounds());
   },
@@ -70,18 +79,18 @@ $(function () {
 (extend-type LeafletView
   render/Renderable
   (render [self]
-    (let [opts (:opts self)]
+    (let [values (merge default-options
+                        (:opts self)
+                        {:map-id (uuid)
+                         :geojson [:safe (geojson (:points self))]})
+          html (selmer/render content-template values)]
       {:type :html
-       :content (format
-                 content-template
-                 (get opts :height 480)
-                 (get opts :width 640)
-                 (geojson (:points self))
-                 (or (:color self) "steelblue"))
+       :content html
        :value (pr-str self)})))
 
 
 (comment
+
 (ns gentle-shelter
   (:require
    [clojure.java.io :as io]
@@ -103,4 +112,5 @@ $(function () {
 
 
 (map/leaflet-view (map (fn [e] [(e 1) (e 2)]) earthquakes))
+(map/leaflet-view (map (fn [e] [(e 1) (e 2)]) earthquakes) :opacity 0.2)
 )
