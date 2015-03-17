@@ -105,12 +105,12 @@ $(function () {
       (line-seq buf))))
 
 (def earthquakes
-  (->> "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_day.csv"
+  (->> "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.csv"
        fetch-url-lines
        rest
        (map #(string/split % #","))))
 
 
 (map/leaflet-view (map (fn [e] [(e 1) (e 2)]) earthquakes))
-(map/leaflet-view (map (fn [e] [(e 1) (e 2)]) earthquakes) :opacity 0.2)
+
 )

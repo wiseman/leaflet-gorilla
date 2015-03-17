@@ -1,10 +1,11 @@
 # leaflet-gorilla
 
-A Clojure library designed to ... well, that part is up to you.
+A renderer for [Gorilla REPL](http://gorilla-repl.org/) that generates
+[Leaflet maps](http://leafletjs.com/).
 
-## Usage
+![leaflet-gorilla screenshot](/media/screenshots/leaflet-gorilla-screenshot-1.png?raw=true "leaflet-gorilla screenshot")
 
-FIXME
+Still under development.
 
 ## License
 
