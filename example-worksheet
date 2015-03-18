@@ -1,0 +1,181 @@
+;; gorilla-repl.fileformat = 1
+
+;; **
+;;; # leaflet-gorilla
+;;; 
+;;; leaflet-gorilla is a renderer for Gorilla REPL that lets you put data on maps
+;; **
+
+;; **
+;;; ## Setup
+;; **
+
+;; **
+;;; First create the namespace and require the leaflet-gorilla code:
+;; **
+
+;; @@
+(ns gentle-shelter
+  (:require
+   [com.lemondronor.leaflet-gorilla :as lg]))
+
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-nil'>nil</span>","value":"nil"}
+;; <=
+
+;; **
+;;; ## One function to use
+;;; 
+;;; There is one function you need to use to plot data on maps: `leaflet`.  It takes geometries as arguments, where a geometry is a sequence of lat/long coordinates tagged with how you want them to be displayed on the map.  As an example, here's a geometry that describes 3 points:
+;;; 
+;;; ```
+;;; [:points [[35.059444 -118.151667]
+;;;           [34.5975 -117.383056]
+;;;           [33.9425, -118.408056]]]
+;;; ```
+;;; 
+;;; Besides points, leaflet-gorilla also supports lines and polygons.
+;; **
+
+;; **
+;;; ## Examples
+;;; 
+;;; First we'll define some points to use in our examples:
+;; **
+
+;; @@
+(def points [[35.059444 -118.151667]
+             [34.5975 -117.383056]
+             [33.9425, -118.408056]
+             [34.200556 -118.358611]])
+;; @@
+;; =>
+;;; {"type":"html","content":"<span class='clj-var'>#&#x27;gentle-shelter/points</span>","value":"#'gentle-shelter/points"}
+;; <=
+
+;; **
+;;; Plot the points on a map (note that if you don't tag a geometry, it is interpreted as a set of points):
+;; **
+
+;; @@
+(lg/leaflet points)
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='b2e9cfe8-b984-4c9d-ae0d-57087ef99b82' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('b2e9cfe8-b984-4c9d-ae0d-57087ef99b82')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]], :opts {}}"}
+;; <=
+
+;; **
+;;; Now plot the line containing the points:
+;; **
+
+;; @@
+(lg/leaflet [:line points])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='b6d51caf-fa72-44cc-bbb3-1b9a77320e2a' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('b6d51caf-fa72-44cc-bbb3-1b9a77320e2a')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[:line [[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]]], :opts {}}"}
+;; <=
+
+;; **
+;;; Next we'll plot a polygon containing the points.  Note that polygons are defined by lists of lines; The first list is the exterior ring and and others are interior rings or holes.  So we wrap our points in another vector:
+;; **
+
+;; @@
+(lg/leaflet [:polygon [points]])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='21e39dba-e7b4-4c85-9676-0fbc471f1624' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('21e39dba-e7b4-4c85-9676-0fbc471f1624')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[:polygon [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]]]], :opts {}}"}
+;; <=
+
+;; **
+;;; Here's an example of putting a hole in the polygon:
+;; **
+
+;; @@
+(def hole [[34.6 -118.15] [34.7 -117.8] [34.35 -118.15]])
+(lg/leaflet [:polygon [points hole]])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='c4747e43-e686-4574-b028-f0502f4c781c' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('c4747e43-e686-4574-b028-f0502f4c781c')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]],[[-118.15,34.6],[-117.8,34.7],[-118.15,34.35]]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[:polygon [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]] [[34.6 -118.15] [34.7 -117.8] [34.35 -118.15]]]]], :opts {}}"}
+;; <=
+
+;; **
+;;; You can combine geometries on a single map:
+;; **
+
+;; @@
+(lg/leaflet [:polygon [points [[34.6 -118.15] [34.7 -117.8] [34.35 -118.15]]]]
+            [:points points]
+            [:points hole]
+            [:line [[34.62 -119] [34 -117]]])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='7c7c7411-0ed9-4f59-bd4b-0fd0710bca92' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('7c7c7411-0ed9-4f59-bd4b-0fd0710bca92')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]],[[-118.15,34.6],[-117.8,34.7],[-118.15,34.35]]]}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.15,34.6],[-117.8,34.7],[-118.15,34.35]]}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[-119,34.62],[-117,34]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[:polygon [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]] [[34.6 -118.15] [34.7 -117.8] [34.35 -118.15]]]] [:points [[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]] [:points [[34.6 -118.15] [34.7 -117.8] [34.35 -118.15]]] [:line [[34.62 -119] [34 -117]]]], :opts {}}"}
+;; <=
+
+;; **
+;;; ## Options
+;;; 
+;;; You can also pass some options to `leaflet`.  The available options are `:width`, `:height`, `:view`, `:color`, `:opacity`, and `:tile-layer-url`.
+;;; 
+;;; `:width` and `:height` change the size of the map:
+;; **
+
+;; @@
+(lg/leaflet points :width 600 :height 450)
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='895b1cc2-0f07-429b-bc3f-ec3fa89c48f5' style='height: 450px; width: 600px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('895b1cc2-0f07-429b-bc3f-ec3fa89c48f5')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]], :opts {:height 450, :width 600}}"}
+;; <=
+
+;; **
+;;; `:view` is used to center the map on specific coordinates, and set its zoom level.  If you don't specify `:view`, leaflet will fit the map to the geometries.
+;; **
+
+;; @@
+(lg/leaflet points :view [[34.5975 -117.383056] 7])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='743efe61-065b-4275-947f-fe1801c259c9' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('743efe61-065b-4275-947f-fe1801c259c9')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if ([[34.5975,-117.383056],7]) {\n      map.setView.apply(map, [[34.5975,-117.383056],7]);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]], :opts {:view [[34.5975 -117.383056] 7]}}"}
+;; <=
+
+;; **
+;;; If you use `:view`, you don't even need to have any geoemtries:
+;; **
+
+;; @@
+(lg/leaflet :view [[34.5975 -117.383056] 7])
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='72ba744b-eb0c-4174-9f1d-a288ec88c5e9' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('72ba744b-eb0c-4174-9f1d-a288ec88c5e9')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if ([[34.5975,-117.383056],7]) {\n      map.setView.apply(map, [[34.5975,-117.383056],7]);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [], :opts {:view [[34.5975 -117.383056] 7]}}"}
+;; <=
+
+;; **
+;;; `:color` and `:opacity` change the geometry style.  The Leaflet javascript library doesn't allow you to change point marker styles this way, so they only apply to lines and polygons.
+;; **
+
+;; @@
+(lg/leaflet [:line points] :color "red" :opacity 0.2)
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='ecef27c2-3dc8-4c3f-818c-075f43442ae6' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('ecef27c2-3dc8-4c3f-818c-075f43442ae6')\n    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'red',\n               'opacity': 0.2}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[:line [[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]]], :opts {:opacity 0.2, :color \"red\"}}"}
+;; <=
+
+;; **
+;;; `:tile-layer-url` lets you change the underlying map tiles.  By default, leaflet-gorilla uses OpenStreetMap tiles, specified by `"http://{s}.tile.osm.org/{z}/{x}/{y}.png"`.  Here's an example using the Mapquest open aerial imagery tiles:
+;; **
+
+;; @@
+(lg/leaflet points :tile-layer-url "http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png")
+;; @@
+;; =>
+;;; {"type":"html","content":"<div>\n<div id='26e01269-ab1d-4231-99f3-95d58d014694' style='height: 400px; width: 400px;'></div>\n<script type='text/javascript'>\n$(function () {\n  var createMap = function() {\n    var map = L.map('26e01269-ab1d-4231-99f3-95d58d014694')\n    L.tileLayer('http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png')\n        .addTo(map);\n    var geoJson = L.geoJson(\n      {\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[-118.151667,35.059444],[-117.383056,34.5975],[-118.408056,33.9425],[-118.358611,34.200556]]}}]},\n      {style: {'color': 'steelblue',\n               'opacity': 1.0}});\n    geoJson.addTo(map);\n    if (null) {\n      map.setView.apply(map, null);\n    } else {\n      map.fitBounds(geoJson.getBounds());\n    }\n  };\n  if (!document.getElementById('8881cbd3-c4e1-447a-aa0d-4e1ce620d305')) {\n    $('<link>')\n      .attr('rel', 'stylesheet')\n      .attr('href', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css')\n      .attr('id', '8881cbd3-c4e1-447a-aa0d-4e1ce620d305')\n      .appendTo('head');\n  }\n  if (!document.getElementById('4fdfd95d-0bad-421d-b6ed-06d584ab4629')) {\n    var jsTag = $('<script>');\n    jsTag.appendTo('head');\n    jsTag.attr('onload',\n               /* Not sure why we need to use setTimeout :( */\n               function() {setTimeout(createMap, 100)});\n    jsTag.attr('id', '4fdfd95d-0bad-421d-b6ed-06d584ab4629');\n    jsTag.attr('src', 'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js')\n    console.log('woo');\n  } else {\n    createMap();\n  }\n});\n</script>\n</div>","value":"#com.lemondronor.leaflet_gorilla.LeafletView{:geometries [[[35.059444 -118.151667] [34.5975 -117.383056] [33.9425 -118.408056] [34.200556 -118.358611]]], :opts {:tile-layer-url \"http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png\"}}"}
+;; <=
+
+;; **
+;;; [Mapbox](http://mapbox.com/) is a service that offers the ability to create custom map styles.
+;; **
+
+;; @@
+
+;; @@
