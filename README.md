@@ -18,6 +18,15 @@ Still under development.
    [clojure.string :as string]
    [com.lemondronor.leaflet-gorilla :as lg]
    [gorilla-plot.core :as plot]))
+
+(def points [[35.059444 -118.151667]
+             [34.200556 -118.358611]
+             [33.9425, -118.408056]
+             [34.5975 -117.383056]])
+
+(lg/leaflet [:points [[51.509, -0.08],
+                      [51.503, -0.06],
+                      [51.51, -0.047]]])
 ```
 
 ### Points

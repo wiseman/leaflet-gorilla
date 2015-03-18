@@ -1,5 +1,5 @@
 (ns com.lemondronor.leaflet-gorilla
-  ""
+  "A renderer for Gorilla REPL that creates maps with leaflet."
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
             [gorilla-renderable.core :as render]
@@ -11,38 +11,27 @@
 (defn- uuid [] (str (java.util.UUID/randomUUID)))
 
 
-(defn transpose-coord [[lat lon]]
+;; We use [lat lon], but GeoJSON uses [lon lat].
+(defn- transpose-coord [[lat lon]]
   [lon lat])
 
 
 (defn multipoint-feature [coords]
-  {
-   "type" "Feature"
-   "geometry" {
-               "type" "MultiPoint"
-               "coordinates" (map transpose-coord coords)
-               }
-   })
+  {"type" "Feature"
+   "geometry" {"type" "MultiPoint"
+               "coordinates" (map transpose-coord coords)}})
 
 
 (defn linestring-feature [coords]
-  {
-   "type" "Feature"
-   "geometry" {
-               "type" "LineString"
-               "coordinates" (map transpose-coord coords)
-               }
-   })
+  {"type" "Feature"
+   "geometry" {"type" "LineString"
+               "coordinates" (map transpose-coord coords)}})
 
 
 (defn polygon-feature [coords-arrays]
-  {
-   "type" "Feature"
-   "geometry" {
-               "type" "Polygon"
-               "coordinates" (map #(map transpose-coord %) coords-arrays)
-               }
-   })
+  {"type" "Feature"
+   "geometry" {"type" "Polygon"
+               "coordinates" (map #(map transpose-coord %) coords-arrays)}})
 
 
 (defn geojson-feature [geodesc]
@@ -57,11 +46,30 @@
 (defn geojson [& geometries]
   (json/write-str
    {"features"
-    (map geojson-feature geometries)
-    }))
+    (map geojson-feature geometries)}))
 
 
 (defrecord LeafletView [points opts])
+
+
+(defn- parse-args [args]
+  (loop [args args
+         geometries []
+         options {}]
+   (if (not (seq args))
+     [geometries options]
+     (let [arg (first args)
+           rstargs (next args)]
+       (if (keyword? arg)
+         (if (seq rstargs)
+           (recur (next rstargs)
+                  geometries
+                  (assoc options arg (first rstargs)))
+           (throw (Exception. (str "No value specified for option " arg))))
+         (recur rstargs
+                (conj geometries arg)
+                options))))))
+
 
 (defn leaflet [points & opts]
   (LeafletView. points (apply hash-map opts)))
@@ -108,11 +116,12 @@ $(function () {
     var jsTag = $('<script>');
     jsTag.appendTo('head');
     jsTag.attr('onload',
+               /* Not sure why we need to use setTimeout :( */
                function() {setTimeout(createMap, 100)});
     jsTag.attr('id', '{{js-tag-id}}');
     jsTag.attr('src', '{{leaflet-js-url}}')
     console.log('woo');
-    } else {
+  } else {
     createMap();
   }
 });
