@@ -43,13 +43,13 @@
       :polygon (polygon-feature coords))))
 
 
-(defn geojson [& geometries]
+(defn geojson [geometries]
   (json/write-str
    {"features"
     (map geojson-feature geometries)}))
 
 
-(defrecord LeafletView [points opts])
+(defrecord LeafletView [geometries opts])
 
 
 (defn- parse-args [args]
@@ -71,8 +71,9 @@
                 options))))))
 
 
-(defn leaflet [points & opts]
-  (LeafletView. points (apply hash-map opts)))
+(defn leaflet [& args]
+  (let [[geometries opts] (parse-args args)]
+    (LeafletView. geometries opts)))
 
 
 (def default-options
@@ -103,7 +104,11 @@ $(function () {
       {style: {'color': '{{color}}',
                'opacity': {{opacity}}}});
     geoJson.addTo(map);
-    map.fitBounds(geoJson.getBounds());
+    if ({{view}}) {
+      map.setView.apply(map, {{view}});
+    } else {
+      map.fitBounds(geoJson.getBounds());
+    }
   };
   if (!document.getElementById('{{css-tag-id}}')) {
     $('<link>')
@@ -132,12 +137,15 @@ $(function () {
 (extend-type LeafletView
   render/Renderable
   (render [self]
-    (let [values (merge default-options
-                        (:opts self)
+    (let [geometries (:geometries self)
+          opts (:opts self)
+          values (merge default-options
+                        opts
                         {:js-tag-id js-tag-id
                          :css-tag-id css-tag-id
                          :map-id (uuid)
-                         :geojson [:safe (geojson (:points self))]})
+                         :view (json/write-str (:view opts))
+                         :geojson [:safe (geojson geometries)]})
           html (selmer/render content-template values)]
       {:type :html
        :content html
