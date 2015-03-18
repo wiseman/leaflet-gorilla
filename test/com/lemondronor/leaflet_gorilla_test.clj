@@ -9,7 +9,9 @@
     `(do ~@defs)))
 
 
-(testable-privates com.lemondronor.leaflet-gorilla parse-args)
+(testable-privates
+ com.lemondronor.leaflet-gorilla
+ geojson geojson-feature geojson-features parse-args)
 
 
 (deftest test-parse-args
@@ -60,3 +62,33 @@
       (is (= {:width 400 :height 400} (:opts v)))))
   (testing "2 geometries, broken option"
     (is (thrown? Exception (lg/leaflet [[1 2] [2 3]] [[4 5]] :width)))))
+
+
+(deftest test-geojson-feature
+  (testing "explicit :points, 1 point"
+    (is (= {:type :Feature, :geometry {:type :MultiPoint, :coordinates [[2 1]]}}
+           (geojson-feature [:points [[1 2]]]))))
+  (testing "explicit :points, 2 point"
+    (is (= {:type :Feature, :geometry {:type :MultiPoint, :coordinates [[2 1] [4 3]]}}
+           (geojson-feature [:points [[1 2] [3 4]]]))))
+  (testing "implicit :points"
+    (is (= {:type :Feature, :geometry {:type :MultiPoint, :coordinates [[2 1]]}}
+           (geojson-feature [[1 2]])))))
+
+
+(deftest test-geojson-features
+  (testing "1 geometry"
+    (is (= {:features
+            [{:type :Feature, :geometry {:type :MultiPoint, :coordinates [[2 1]]}}]}
+           (geojson-features [[[1 2]]]))))
+  (testing "2 geometries"
+    (is (= {:features
+            [{:type :Feature, :geometry {:type :MultiPoint, :coordinates [[2 1]]}}
+             {:type :Feature, :geometry {:type :MultiPoint, :coordinates [[4 3]]}}]}
+           (geojson-features [[[1 2]] [[3 4]]])))))
+
+
+(deftest test-geojson
+  (testing "1 geometry"
+    (is (= "{\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[2,1]]}}]}"
+           (geojson [[[1 2]]])))))

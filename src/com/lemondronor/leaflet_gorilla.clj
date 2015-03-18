@@ -17,36 +17,41 @@
 
 
 (defn multipoint-feature [coords]
-  {"type" "Feature"
-   "geometry" {"type" "MultiPoint"
-               "coordinates" (map transpose-coord coords)}})
+  {:type :Feature
+   :geometry {:type :MultiPoint
+               :coordinates (map transpose-coord coords)}})
 
 
 (defn linestring-feature [coords]
-  {"type" "Feature"
-   "geometry" {"type" "LineString"
-               "coordinates" (map transpose-coord coords)}})
+  {:type :Feature
+   :geometry {:type :LineString
+               :coordinates (map transpose-coord coords)}})
 
 
 (defn polygon-feature [coords-arrays]
-  {"type" "Feature"
-   "geometry" {"type" "Polygon"
-               "coordinates" (map #(map transpose-coord %) coords-arrays)}})
+  {:type :Feature
+   :geometry {:type :Polygon
+               :coordinates (map #(map transpose-coord %) coords-arrays)}})
 
 
-(defn geojson-feature [geodesc]
+(defn- geojson-feature [geodesc]
   (let [type-desig (first geodesc)
         coords (second geodesc)]
     (case type-desig
       :points (multipoint-feature coords)
       :line (linestring-feature coords)
-      :polygon (polygon-feature coords))))
+      :polygon (polygon-feature coords)
+      ;; Default to :points
+      (geojson-feature [:points geodesc]))))
+
+
+(defn geojson-features [geometries]
+  {:features
+   (map geojson-feature geometries)})
 
 
 (defn geojson [geometries]
-  (json/write-str
-   {"features"
-    (map geojson-feature geometries)}))
+  (json/write-str (geojson-features geometries)))
 
 
 (defrecord LeafletView [geometries opts])
