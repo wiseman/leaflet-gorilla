@@ -5,6 +5,6 @@
 
 (deftest a-test
   (testing "FIXME, I fail."
-    (let [v (lg/leaflet-view [[1 2]])]
+    (let [v (lg/leaflet [:points [[1 2] [3 4]]])]
       (is (= 4
              (render/render v))))))

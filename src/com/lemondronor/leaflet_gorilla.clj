@@ -11,29 +11,59 @@
 (defn- uuid [] (str (java.util.UUID/randomUUID)))
 
 
-(defn point-geometry [lat lon]
+(defn transpose-coord [[lat lon]]
+  [lon lat])
+
+
+(defn multipoint-feature [coords]
   {
-   "geometry" {
-               "coordinates" [lon lat]
-               "type" "Point"
-               },
    "type" "Feature"
+   "geometry" {
+               "type" "MultiPoint"
+               "coordinates" (map transpose-coord coords)
+               }
    })
+
+
+(defn linestring-feature [coords]
+  {
+   "type" "Feature"
+   "geometry" {
+               "type" "LineString"
+               "coordinates" (map transpose-coord coords)
+               }
+   })
+
+
+(defn polygon-feature [coords-arrays]
+  {
+   "type" "Feature"
+   "geometry" {
+               "type" "Polygon"
+               "coordinates" (map #(map transpose-coord %) coords-arrays)
+               }
+   })
+
+
+(defn geojson-feature [geodesc]
+  (let [type-desig (first geodesc)
+        coords (second geodesc)]
+    (case type-desig
+      :points (multipoint-feature coords)
+      :line (linestring-feature coords)
+      :polygon (polygon-feature coords))))
+
+
+(defn geojson [& geometries]
+  (json/write-str
+   {"features"
+    (map geojson-feature geometries)
+    }))
 
 
 (defrecord LeafletView [points opts])
 
-(defn geojson [points]
-  (json/write-str
-   {"features"
-    (map
-     #(let [[lat lon] %]
-        (point-geometry lat lon))
-     points)
-    }))
-
-
-(defn leaflet-view [points & opts]
+(defn leaflet [points & opts]
   (LeafletView. points (apply hash-map opts)))
 
 
@@ -91,13 +121,6 @@ $(function () {
 
 (comment
 
-(ns gentle-shelter
-  (:require
-   [clojure.java.io :as io]
-   [clojure.string :as string]
-   [com.lemondronor.leaflet-gorilla :as map]
-   [gorilla-plot.core :as plot]))
-
 (defn fetch-url-lines[address]
   (with-open [stream (.openStream (java.net.URL. address))]
     (let  [buf (java.io.BufferedReader.
@@ -111,6 +134,14 @@ $(function () {
        (map #(string/split % #","))))
 
 
-(map/leaflet-view (map (fn [e] [(e 1) (e 2)]) earthquakes))
+(lg/leaflet (map (fn [e] [(e 1) (e 2)]) earthquakes))
+
+(def oakland-alpr
+  (->> "https://www.eff.org/files/2015/01/20/oakland_pd_alpr.csv"
+       fetch-url-lines
+       rest
+       (map #(string/split % #","))))
+
+(lg/leaflet (map (fn [r] [(r 2) (r 3)]) oakland-alpr))
 
 )
