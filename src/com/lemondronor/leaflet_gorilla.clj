@@ -86,20 +86,7 @@
 <div id='{{map-id}}' style='height: {{height}}px; width: {{width}}px;'></div>
 <script type='text/javascript'>
 $(function () {
-  if (!document.getElementById('{{css-tag-id}}')) {
-    $('<link>')
-      .attr('rel', 'stylesheet')
-      .attr('href', '{{leaflet-css-url}}')
-      .attr('id', '{{css-tag-id}}')
-      .appendTo('head');
-  }
-  if (!document.getElementById('{{js-tag-id}}')) {
-    $('<script>')
-      .attr('src', '{{leaflet-js-url}}')
-      .attr('id', '{{js-tag-id}}')
-      .appendTo('head');
-  }
-  setTimeout(function() {
+  var createMap = function() {
     var map = L.map('{{map-id}}')
     L.tileLayer('{{tile-layer-url}}')
         .addTo(map);
@@ -109,8 +96,25 @@ $(function () {
                'opacity': {{opacity}}}});
     geoJson.addTo(map);
     map.fitBounds(geoJson.getBounds());
-  },
-  3000);
+  };
+  if (!document.getElementById('{{css-tag-id}}')) {
+    $('<link>')
+      .attr('rel', 'stylesheet')
+      .attr('href', '{{leaflet-css-url}}')
+      .attr('id', '{{css-tag-id}}')
+      .appendTo('head');
+  }
+  if (!document.getElementById('{{js-tag-id}}')) {
+    var jsTag = $('<script>');
+    jsTag.appendTo('head');
+    jsTag.attr('onload',
+               function() {setTimeout(createMap, 100)});
+    jsTag.attr('id', '{{js-tag-id}}');
+    jsTag.attr('src', '{{leaflet-js-url}}')
+    console.log('woo');
+    } else {
+    createMap();
+  }
 });
 </script>
 </div>")
