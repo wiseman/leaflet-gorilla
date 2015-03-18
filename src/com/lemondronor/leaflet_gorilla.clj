@@ -77,18 +77,28 @@
    :opacity 1.0})
 
 
+(defonce js-tag-id (uuid))
+(defonce css-tag-id (uuid))
+
+
 (def content-template
   "<div>
 <div id='{{map-id}}' style='height: {{height}}px; width: {{width}}px;'></div>
 <script type='text/javascript'>
 $(function () {
-  $('<link>')
-    .attr('rel', 'stylesheet')
-    .attr('href', '{{leaflet-css-url}}')
-    .appendTo('head');
-  $('<script>')
-    .attr('src', '{{leaflet-js-url}}')
-    .appendTo('head');
+  if (!document.getElementById('{{css-tag-id}}')) {
+    $('<link>')
+      .attr('rel', 'stylesheet')
+      .attr('href', '{{leaflet-css-url}}')
+      .attr('id', '{{css-tag-id}}')
+      .appendTo('head');
+  }
+  if (!document.getElementById('{{js-tag-id}}')) {
+    $('<script>')
+      .attr('src', '{{leaflet-js-url}}')
+      .attr('id', '{{js-tag-id}}')
+      .appendTo('head');
+  }
   setTimeout(function() {
     var map = L.map('{{map-id}}')
     L.tileLayer('{{tile-layer-url}}')
@@ -111,7 +121,9 @@ $(function () {
   (render [self]
     (let [values (merge default-options
                         (:opts self)
-                        {:map-id (uuid)
+                        {:js-tag-id js-tag-id
+                         :css-tag-id css-tag-id
+                         :map-id (uuid)
                          :geojson [:safe (geojson (:points self))]})
           html (selmer/render content-template values)]
       {:type :html
