@@ -94,3 +94,9 @@
     (is (= (json/read-str
             "{\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[2,1]]}}]}")
            (json/read-str (geojson [[[1 2]]]))))))
+
+
+(deftest test-render
+  (testing "rendering"
+    (let [v (render/render (lg/leaflet [[1 2]]))]
+      (is (= :html (:type v))))))
