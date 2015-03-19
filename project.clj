@@ -1,5 +1,5 @@
 (defproject com.lemondronor.leaflet-gorilla "0.1.1-SNAPSHOT"
-  :description "A renderer for Gorilla REPL that generates Leaflet maps."
+  :description "A renderer for Gorilla REPL that renders geo data using Leaflet maps."
   :url "https://github.com/wiseman/leaflet-gorilla"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}

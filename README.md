@@ -1,22 +1,29 @@
 # leaflet-gorilla
 
-A renderer for [Gorilla REPL](http://gorilla-repl.org/) that generates
-[Leaflet maps](http://leafletjs.com/).
+A renderer for [Gorilla REPL](http://gorilla-repl.org/) that renders
+geo data using [Leaflet maps](http://leafletjs.com/).
 
-![leaflet-gorilla screenshot](/media/screenshots/leaflet-gorilla-screenshot-1.png?raw=true "leaflet-gorilla screenshot")
+```
+[com.lemondronor.leaflet-gorilla "0.1.1"]
+```
 
-Still under development.
 
 ## Examples
 
-Start the Gorilla repl with
+You can start the Gorilla repl with
 
 ```
 $ lein gorilla
 ```
 
-then load `example-worksheet.cljw` to see examples of using
+Once it's running, visit the Gorilla repl in your browser and load
+`example-worksheet.cljw` to see live examples of using
 leaflet-gorilla.
+
+Here's a screenshot of `example-worksheet.cljw`:
+
+![leaflet-gorilla screenshot](/media/screenshots/leaflet-gorilla-screenshot-1.png?raw=true "leaflet-gorilla screenshot")
+
 
 ## License
 
