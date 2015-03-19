@@ -10,4 +10,5 @@
                  [selmer "0.8.2"]]
   :profiles
   {:dev
-   {:plugins [[lein-gorilla "0.3.4"]]}})
+   {:plugins [[lein-cloverage "1.0.2"]
+              [lein-gorilla "0.3.4"]]}})
