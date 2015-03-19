@@ -1,5 +1,6 @@
 (ns com.lemondronor.leaflet-gorilla-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.data.json :as json]
+            [clojure.test :refer :all]
             [com.lemondronor.leaflet-gorilla :as lg]
             [gorilla-renderable.core :as render]))
 
@@ -90,5 +91,6 @@
 
 (deftest test-geojson
   (testing "1 geometry"
-    (is (= "{\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[2,1]]}}]}"
-           (geojson [[[1 2]]])))))
+    (is (= (json/read-str
+            "{\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[2,1]]}}]}")
+           (json/read-str (geojson [[[1 2]]]))))))
