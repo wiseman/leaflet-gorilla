@@ -188,31 +188,3 @@ $(function () {
       {:type :html
        :content html
        :value (pr-str self)})))
-
-
-(comment
-
-(defn fetch-url-lines[address]
-  (with-open [stream (.openStream (java.net.URL. address))]
-    (let  [buf (java.io.BufferedReader.
-                (java.io.InputStreamReader. stream))]
-      (line-seq buf))))
-
-(def earthquakes
-  (->> "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.csv"
-       fetch-url-lines
-       rest
-       (map #(string/split % #","))))
-
-
-(lg/leaflet (map (fn [e] [(e 1) (e 2)]) earthquakes))
-
-(def oakland-alpr
-  (->> "https://www.eff.org/files/2015/01/20/oakland_pd_alpr.csv"
-       fetch-url-lines
-       rest
-       (map #(string/split % #","))))
-
-(lg/leaflet (map (fn [r] [(r 2) (r 3)]) oakland-alpr))
-
-)
