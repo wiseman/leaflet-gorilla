@@ -1,5 +1,7 @@
 # leaflet-gorilla
 
+[![Build Status](https://travis-ci.org/wiseman/leaflet-gorilla.svg?branch=master)](https://travis-ci.org/wiseman/leaflet-gorilla)
+
 A renderer for [Gorilla REPL](http://gorilla-repl.org/) that renders
 geo data using [Leaflet maps](http://leafletjs.com/).
 
