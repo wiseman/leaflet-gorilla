@@ -91,8 +91,11 @@
    :opacity 1.0})
 
 
-(defonce js-tag-id (uuid))
-(defonce css-tag-id (uuid))
+;; Use IDs for these tags that theoretically some other renderer could
+;; reference?
+(def leaflet-js-tag-id "leafjet-js")
+(def leaflet-css-tag-id "leaflet-css")
+
 
 
 (def content-template
@@ -100,8 +103,22 @@
 <div id='{{map-id}}' style='height: {{height}}px; width: {{width}}px;'></div>
 <script type='text/javascript'>
 $(function () {
+  var cachedScript = function(url, options) {
+    // Allow user to set any option except for dataType, cache, and url
+    options = $.extend( options || {}, {
+      dataType: 'script',
+      cache: true,
+      url: url
+    });
+
+    // Use $.ajax() since it is more flexible than $.getScript
+    // Return the jqXHR object so we can chain callbacks
+    return jQuery.ajax(options);
+  };
   var createMap = function() {
+    console.log('Running createMap for {{map-id}}');
     var map = L.map('{{map-id}}')
+    console.log('createMap ran for {{map-id}}');
     L.tileLayer('{{tile-layer-url}}')
         .addTo(map);
     var geoJson = L.geoJson(
@@ -116,22 +133,34 @@ $(function () {
     }
   };
   if (!document.getElementById('{{css-tag-id}}')) {
+    console.log('Adding css for {{map-id}}');
     $('<link>')
       .attr('rel', 'stylesheet')
       .attr('href', '{{leaflet-css-url}}')
       .attr('id', '{{css-tag-id}}')
       .appendTo('head');
   }
-  if (!document.getElementById('{{js-tag-id}}')) {
-    var jsTag = $('<script>');
-    jsTag.appendTo('head');
-    jsTag.attr('onload',
-               /* Not sure why we need to use setTimeout :( */
-               function() {setTimeout(createMap, 100)});
-    jsTag.attr('id', '{{js-tag-id}}');
-    jsTag.attr('src', '{{leaflet-js-url}}')
-    console.log('woo');
+  if (!window.leafletJsLoaded) {
+    if (!window.leafletJsIsLoading) {
+      console.log('Adding js for {{map-id}}');
+      window.leafletJsLoadedCallbacks = [createMap];
+      window.leafletJsIsLoading = true;
+      cachedScript('{{leaflet-js-url}}')
+        .done(function() {
+          console.log('js loaded');
+          console.log('callbacks: ' + window.leafletJsLoadedCallbacks);
+          window.leafletJsIsLoading = false;
+          window.leafletJsLoaded = true;
+          _.each(window.leafletJsLoadedCallbacks, function(cb) { cb(); });
+          window.leafletJsLoadedCallbacks = [];
+        })
+        .fail(function() { console.log('failed'); });
+    } else {
+      console.log('Adding callback for {{map-id}}');
+      window.leafletJsLoadedCallbacks.push(createMap);
+    }
   } else {
+    console.log('Calling createMap directly for {{map-id}}');
     createMap();
   }
 });
@@ -146,8 +175,8 @@ $(function () {
           opts (:opts self)
           values (merge default-options
                         opts
-                        {:js-tag-id js-tag-id
-                         :css-tag-id css-tag-id
+                        {:js-tag-id leaflet-js-tag-id
+                         :css-tag-id leaflet-css-tag-id
                          :map-id (uuid)
                          :view (json/write-str (:view opts))
                          :geojson [:safe (geojson geometries)]})
