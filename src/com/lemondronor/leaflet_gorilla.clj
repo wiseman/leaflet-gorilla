@@ -5,8 +5,6 @@
             [gorilla-renderable.core :as render]
             [selmer.parser :as selmer]))
 
-(set! *warn-on-reflection* true)
-
 
 (defn- uuid [] (str (java.util.UUID/randomUUID)))
 
@@ -16,19 +14,19 @@
   [lon lat])
 
 
-(defn multipoint-feature [coords]
+(defn- multipoint-feature [coords]
   {:type :Feature
    :geometry {:type :MultiPoint
                :coordinates (map transpose-coord coords)}})
 
 
-(defn linestring-feature [coords]
+(defn- linestring-feature [coords]
   {:type :Feature
    :geometry {:type :LineString
                :coordinates (map transpose-coord coords)}})
 
 
-(defn polygon-feature [coords-arrays]
+(defn- polygon-feature [coords-arrays]
   {:type :Feature
    :geometry {:type :Polygon
                :coordinates (map #(map transpose-coord %) coords-arrays)}})
@@ -45,12 +43,12 @@
       (geojson-feature [:points geodesc]))))
 
 
-(defn geojson-features [geometries]
+(defn- geojson-features [geometries]
   {:features
    (map geojson-feature geometries)})
 
 
-(defn geojson [geometries]
+(defn- geojson [geometries]
   (json/write-str (geojson-features geometries)))
 
 
@@ -76,7 +74,9 @@
                 options))))))
 
 
-(defn leaflet [& args]
+(defn leaflet
+  "Plots geo data."
+  [& args]
   (let [[geometries opts] (parse-args args)]
     (LeafletView. geometries opts)))
 
@@ -91,12 +91,24 @@
    :opacity 1.0})
 
 
-;; Use IDs for these tags that theoretically some other renderer could
-;; reference?
-(def leaflet-js-tag-id "leafjet-js")
+;; Might as well use an ID for this tags that theoretically some other
+;; renderer could reference.
 (def leaflet-css-tag-id "leaflet-css")
 
 
+;; This, unfortunately, is a lot of javascript.
+;;
+;; First it loads the Leaflet CSS if it hasn't already been loaded.
+;;
+;; The complicated part is properly loading the Leaflet javascript. If
+;; it hasn't already been loaded, we check to see if it is currently
+;; being loaded. If it is being loaded, we add our map creation
+;; function to a queue of callbacks. If it isn't being loaded, we
+;; start loading it. When it's finally loaded we call all the
+;; functions in the callback queue.
+;;
+;; If the Leaflet javascript has already been fully loaded, we just
+;; create our map.
 
 (def content-template
   "<div>
@@ -116,9 +128,7 @@ $(function () {
     return jQuery.ajax(options);
   };
   var createMap = function() {
-    console.log('Running createMap for {{map-id}}');
     var map = L.map('{{map-id}}')
-    console.log('createMap ran for {{map-id}}');
     L.tileLayer('{{tile-layer-url}}')
         .addTo(map);
     var geoJson = L.geoJson(
@@ -133,7 +143,6 @@ $(function () {
     }
   };
   if (!document.getElementById('{{css-tag-id}}')) {
-    console.log('Adding css for {{map-id}}');
     $('<link>')
       .attr('rel', 'stylesheet')
       .attr('href', '{{leaflet-css-url}}')
@@ -142,13 +151,10 @@ $(function () {
   }
   if (!window.leafletJsLoaded) {
     if (!window.leafletJsIsLoading) {
-      console.log('Adding js for {{map-id}}');
       window.leafletJsLoadedCallbacks = [createMap];
       window.leafletJsIsLoading = true;
       cachedScript('{{leaflet-js-url}}')
         .done(function() {
-          console.log('js loaded');
-          console.log('callbacks: ' + window.leafletJsLoadedCallbacks);
           window.leafletJsIsLoading = false;
           window.leafletJsLoaded = true;
           _.each(window.leafletJsLoadedCallbacks, function(cb) { cb(); });
@@ -156,11 +162,9 @@ $(function () {
         })
         .fail(function() { console.log('failed'); });
     } else {
-      console.log('Adding callback for {{map-id}}');
       window.leafletJsLoadedCallbacks.push(createMap);
     }
   } else {
-    console.log('Calling createMap directly for {{map-id}}');
     createMap();
   }
 });
@@ -168,6 +172,7 @@ $(function () {
 </div>")
 
 
+;; Implement the Gorilla renderable protocol.
 (extend-type LeafletView
   render/Renderable
   (render [self]
@@ -175,8 +180,7 @@ $(function () {
           opts (:opts self)
           values (merge default-options
                         opts
-                        {:js-tag-id leaflet-js-tag-id
-                         :css-tag-id leaflet-css-tag-id
+                        {:css-tag-id leaflet-css-tag-id
                          :map-id (uuid)
                          :view (json/write-str (:view opts))
                          :geojson [:safe (geojson geometries)]})
