@@ -97,6 +97,22 @@
 
 
 (deftest test-render
-  (testing "rendering"
+  ;; Just testing that we don't crash for now.
+  (testing "rendering implicit points"
     (let [v (render/render (lg/leaflet [[1 2]]))]
+      (is (= :html (:type v)))))
+  (testing "rendering explicit points"
+    (let [v (render/render (lg/leaflet [:points [[1 2]]]))]
+      (is (= :html (:type v)))))
+  (testing "rendering line"
+    (let [v (render/render (lg/leaflet [:line [[1 2] [3 4]]]))]
+      (is (= :html (:type v)))))
+  (testing "rendering polygon with no holes"
+    (let [v (render/render
+             (lg/leaflet [:polygon [[[1 2] [3 4] [4 5]]]]))]
+      (is (= :html (:type v)))))
+  (testing "rendering polygon with 1 hole"
+    (let [v (render/render
+             (lg/leaflet
+              [:polygon [[[1 2] [3 4] [4 5]] [[7 8] [9 10] [11 12]]]]))]
       (is (= :html (:type v))))))
