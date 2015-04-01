@@ -75,10 +75,9 @@
 
 (deftest test-geojson-for-geodesc
   (testing "points"
-    (is (= {"type" "Feature",
-            "geometry" {"type" "MultiPoint", "coordinates" [[2 1] [4 3]]}}
-           (json/read-str
-            (lg/geojson-for-geodesc {:type :points :desc [[1 2] [3 4]]}))))))
+    (is (= {:type :Feature,
+            :geometry {:type :MultiPoint, :coordinates [[2 1] [4 3]]}}
+           (lg/geojson-for-geodesc {:type :points :desc [[1 2] [3 4]]})))))
 
 
 (deftest test-render
