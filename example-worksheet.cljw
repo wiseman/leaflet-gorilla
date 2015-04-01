@@ -272,7 +272,7 @@
          "from reports_with_distance "
          ;; There are some bogus reports--filter out anything more than 300 miles from me.
          "where distance < 300 * 1609.34 "
-         ;; And filter out anything with altitude=0.
+         ;; And filter out anything with altitude <= 0.
          "and altitude > 0")))
 ;; @@
 ;; =>
