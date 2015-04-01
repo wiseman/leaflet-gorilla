@@ -20,7 +20,7 @@
 ;; <=
 
 ;; **
-;;; ## API function: leaflet
+;;; ## API function: geo
 ;;; 
 ;;; There is one function you need to use to plot data on maps: `geo`.  It takes geometries as arguments, where a geometry is a sequence of lat/long coordinates tagged with how you want them to be displayed on the map.  As an example, here's a geometry that describes 3 points:
 ;;; 
