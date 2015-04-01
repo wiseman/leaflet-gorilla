@@ -91,7 +91,7 @@
    :opacity 1.0})
 
 
-;; Might as well use an ID for this tags that theoretically some other
+;; Might as well use an ID for the CSS that theoretically some other
 ;; renderer could reference.
 (def leaflet-css-tag-id "leaflet-css")
 
