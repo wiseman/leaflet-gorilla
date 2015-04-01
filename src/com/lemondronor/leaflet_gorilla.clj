@@ -18,7 +18,7 @@
 
 
 (defmethod geojson-for-geodesc :geojson [geodesc]
-  (:desc geodesc))
+  (json/read-str (:desc geodesc)))
 
 
 (defn- multipoint-feature [coords]

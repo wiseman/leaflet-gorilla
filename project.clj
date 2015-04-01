@@ -10,5 +10,7 @@
                  [selmer "0.8.2"]]
   :profiles
   {:dev
-   {:plugins [[lein-cloverage "1.0.2"]
+   {:dependencies [[org.clojure/java.jdbc "0.3.6"]
+                   [postgresql "9.3-1102.jdbc41"]]
+    :plugins [[lein-cloverage "1.0.2"]
               [lein-gorilla "0.3.4"]]}})
