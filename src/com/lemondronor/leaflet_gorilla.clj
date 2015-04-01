@@ -14,10 +14,21 @@
   [lon lat])
 
 
+(defmulti geojson-for-geodesc :type)
+
+
+(defmethod geojson-for-geodesc :geojson [geodesc]
+  (:desc geodesc))
+
+
 (defn- multipoint-feature [coords]
   {:type :Feature
    :geometry {:type :MultiPoint
                :coordinates (map transpose-coord coords)}})
+
+
+(defmethod geojson-for-geodesc :points [geodesc]
+  (multipoint-feature (:desc geodesc)))
 
 
 (defn- linestring-feature [coords]
@@ -26,59 +37,70 @@
                :coordinates (map transpose-coord coords)}})
 
 
+(defmethod geojson-for-geodesc :line [geodesc]
+  (linestring-feature (:desc geodesc)))
+
+
 (defn- polygon-feature [coords-arrays]
   {:type :Feature
    :geometry {:type :Polygon
                :coordinates (map #(map transpose-coord %) coords-arrays)}})
 
 
-(defn- geojson-feature [geodesc]
-  (let [type-desig (first geodesc)
-        coords (second geodesc)]
-    (case type-desig
-      :points (multipoint-feature coords)
-      :line (linestring-feature coords)
-      :polygon (polygon-feature coords)
-      ;; Default to :points
-      (geojson-feature [:points geodesc]))))
+(defmethod geojson-for-geodesc :polygon [geodesc]
+  (polygon-feature (:desc geodesc)))
 
 
-(defn- geojson-features [geometries]
-  {:features
-   (map geojson-feature geometries)})
-
-
-(defn- geojson [geometries]
-  (json/write-str (geojson-features geometries)))
-
-
-(defrecord LeafletView [geometries opts])
+(defrecord LeafletView [geodescs opts])
 
 
 (defn- parse-args [args]
   (loop [args args
-         geometries []
+         geodescs []
          options {}]
    (if (not (seq args))
-     [geometries options]
+     [geodescs options]
      (let [arg (first args)
            rstargs (next args)]
        (if (keyword? arg)
          (if (seq rstargs)
            (recur (next rstargs)
-                  geometries
+                  geodescs
                   (assoc options arg (first rstargs)))
            (throw (Exception. (str "No value specified for option " arg))))
          (recur rstargs
-                (conj geometries arg)
+                (conj geodescs arg)
                 options))))))
 
 
-(defn leaflet
-  "Plots geo data."
+(defn canonicalize-geodesc [default-type g]
+  (let [type-desig (first g)
+        desc (second g)
+        canon (if (keyword? type-desig)
+                {:type type-desig :desc desc}
+                {:type default-type :desc g})]
+    canon))
+
+
+(defn geo
+  "Plots geometries on a map."
   [& args]
   (let [[geometries opts] (parse-args args)]
-    (LeafletView. geometries opts)))
+    (LeafletView. (map #(canonicalize-geodesc :points %) geometries) opts)))
+
+
+;; For backwards compatibility.
+(defn leaflet
+  "Plots geometries on a map."
+  [& args]
+  (apply geo args))
+
+
+(defn geojson
+  "Plots geometries on a map."
+  [& args]
+  (let [[geodescs opts] (parse-args args)]
+    (LeafletView. (map #(canonicalize-geodesc :geojson %) geodescs) opts)))
 
 
 (def default-options
@@ -131,15 +153,28 @@ $(function () {
     var map = L.map('{{map-id}}')
     L.tileLayer('{{tile-layer-url}}')
         .addTo(map);
-    var geoJson = L.geoJson(
-      {{geojson}},
+    var geoJsons = {{geojsons}};
+    var bounds = null;
+    for (var i = 0; i < geoJsons.length; i++) {
+      var geoJson = L.geoJson(
+      geoJsons[i],
       {style: {'color': '{{color}}',
                'opacity': {{opacity}}}});
-    geoJson.addTo(map);
+      geoJson.addTo(map);
+      console.log('Added GeoJSON:');
+      console.log(geoJsons[i]);
+      if (!bounds) {
+        bounds = geoJson.getBounds();
+      } else {
+        bounds.extend(geoJson.getBounds());
+      }
+    }
     if ({{view}}) {
       map.setView.apply(map, {{view}});
     } else {
-      map.fitBounds(geoJson.getBounds());
+      console.log('setting bounds to ' + bounds);
+      console.log(bounds);
+      map.fitBounds(bounds);
     }
   };
   if (!document.getElementById('{{css-tag-id}}')) {
@@ -176,14 +211,14 @@ $(function () {
 (extend-type LeafletView
   render/Renderable
   (render [self]
-    (let [geometries (:geometries self)
+    (let [geodescs (:geodescs self)
           opts (:opts self)
           values (merge default-options
                         opts
                         {:css-tag-id leaflet-css-tag-id
                          :map-id (uuid)
                          :view (json/write-str (:view opts))
-                         :geojson [:safe (geojson geometries)]})
+                         :geojsons [:safe (json/write-str (map geojson-for-geodesc geodescs))]})
           html (selmer/render content-template values)]
       {:type :html
        :content html
