@@ -4,13 +4,13 @@
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :deploy-repositories [["releases" :clojars]]
-  :dependencies [[gorilla-renderable "1.0.0"]
+  :dependencies [[gorilla-renderable "2.0.0"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/data.json "0.2.6"]
-                 [selmer "0.8.2"]]
+                 [selmer "0.8.9"]]
   :profiles
   {:dev
-   {:dependencies [[org.clojure/java.jdbc "0.3.6"]
+   {:dependencies [[org.clojure/java.jdbc "0.4.1"]
                    [postgresql "9.3-1102.jdbc41"]]
     :plugins [[lein-cloverage "1.0.2"]
               [lein-gorilla "0.3.4"]]}})

@@ -110,7 +110,11 @@
    :leaflet-css-url "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"
    :tile-layer-url "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
    :color "steelblue"
-   :opacity 1.0})
+   :weight 5.0
+   :opacity 1.0
+   :dash-array "1, 0"
+   :line-cap "butt"
+   :line-join "miter"})
 
 
 ;; Might as well use an ID for the CSS that theoretically some other
@@ -158,8 +162,12 @@ $(function () {
     for (var i = 0; i < geoJsons.length; i++) {
       var geoJson = L.geoJson(
       geoJsons[i],
-      {style: {'color': '{{color}}',
-               'opacity': {{opacity}}}});
+      {style: {color: '{{color}}',
+               weight: {{weight}},
+               dashArray: '{{dash-array}}',
+               lineCap: '{{line-cap}}',
+               lineJoin: '{{line-join}}',
+               opacity: {{opacity}}}});
       geoJson.addTo(map);
       console.log('Added GeoJSON:');
       console.log(geoJsons[i]);
