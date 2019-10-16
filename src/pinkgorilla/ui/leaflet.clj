@@ -1,9 +1,10 @@
-(ns com.lemondronor.leaflet-gorilla
-  "A renderer for Gorilla REPL that creates maps with leaflet."
+(ns pinkgorilla.ui.leaflet
+  "A renderer for PinkGorilla REPL that creates maps with leaflet."
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [gorilla-renderable.core :as render]
-            [selmer.parser :as selmer]))
+            [selmer.parser :as selmer]
+            [gorilla-renderable.core :as render] ;pink-gorilla Renderable            
+            ))
 
 
 (defn- uuid [] (str (java.util.UUID/randomUUID)))
