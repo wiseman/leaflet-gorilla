@@ -1,7 +1,6 @@
-(defproject pinkgorilla.ui.leaflet "0.1.4-SNAPSHOT"
+(defproject pinkgorilla.ui.leaflet "0.2.4-SNAPSHOT"
   :description "A renderer for PinkGorilla REPL that renders geo data using Leaflet maps."
-  :url "https://github.com/pinkgorillawb/pinkgorilla-leaflet"
-  ;:url "https://github.com/wiseman/leaflet-gorilla"
+  :url "https://github.com/pink-gorilla/pinkgorilla-leaflet"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   
@@ -13,7 +12,8 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/data.json "0.2.6"]
                  [selmer "0.8.9"]
-                 [org.clojars.deas/gorilla-renderable "2.1.0"] ;PinkGorilla Renderable
+                 ;[org.clojars.deas/gorilla-renderable "2.1.0"] ;PinkGorilla Renderable
+                 [pinkgorilla.ui.gorilla-renderable "1.0.1"] ;PinkGorilla Renderable
                  ]
   :profiles
   {:dev

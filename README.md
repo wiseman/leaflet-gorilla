@@ -1,5 +1,9 @@
 # leaflet-gorilla
 
+##History
+Forked from "https://github.com/wiseman/leaflet-gorilla"
+to allow rendering with pink-gorilla renderable
+
 [![Build Status](https://travis-ci.org/wiseman/leaflet-gorilla.svg?branch=master)](https://travis-ci.org/wiseman/leaflet-gorilla)[![Coverage Status](https://coveralls.io/repos/wiseman/leaflet-gorilla/badge.svg)](https://coveralls.io/r/wiseman/leaflet-gorilla)
 
 A renderer for [Gorilla REPL](http://gorilla-repl.org/) that renders
