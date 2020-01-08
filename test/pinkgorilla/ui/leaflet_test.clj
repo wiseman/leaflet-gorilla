@@ -1,19 +1,15 @@
-(ns com.lemondronor.leaflet-gorilla-test
+(ns pinkgorilla.ui.leaflet-test
   (:require [clojure.data.json :as json]
             [clojure.test :refer :all]
-            [com.lemondronor.leaflet-gorilla :as lg]
-            [gorilla-renderable.core :as render]))
-
+            [pinkgorilla.ui.leaflet :as lg]
+            [pinkgorilla.ui.gorilla-renderable :as render]))
 
 (defmacro testable-privates [namespace & symbols]
   (let [defs (map (fn [s] `(def ~s (ns-resolve '~namespace '~s))) symbols)]
     `(do ~@defs)))
 
-
 (testable-privates
- com.lemondronor.leaflet-gorilla
- geojson-for-geometries geojson-feature geojson-features parse-args)
-
+ pinkgorilla.ui.leaflet geojson-for-geometries geojson-feature geojson-features parse-args)
 
 (deftest test-parse-args
   (testing "1 geometry, no options"
@@ -38,7 +34,6 @@
       (is (= {:width 400 :height 400} options))))
   (testing "2 geometries, broken option"
     (is (thrown? Exception (parse-args '([[1 2] [2 3]] [[4 5]] :width))))))
-
 
 (deftest test-geometry
   (testing "1 implicit point geometry, no options"
@@ -72,13 +67,11 @@
   (testing "2 geometries, broken option"
     (is (thrown? Exception (lg/geo [[1 2] [2 3]] [[4 5]] :width)))))
 
-
 (deftest test-geojson-for-geodesc
   (testing "points"
-    (is (= {:type :Feature,
+    (is (= {:type     :Feature,
             :geometry {:type :MultiPoint, :coordinates [[2 1] [4 3]]}}
            (lg/geojson-for-geodesc {:type :points :desc [[1 2] [3 4]]})))))
-
 
 (deftest test-render
   ;; Just testing that we don't crash for now.

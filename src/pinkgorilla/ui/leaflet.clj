@@ -3,76 +3,66 @@
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
             [selmer.parser :as selmer]
-            [gorilla-renderable.core :as render] ;pink-gorilla Renderable            
+            [pinkgorilla.ui.gorilla-renderable :as render] ;pink-gorilla Renderable
             ))
-
 
 (defn- uuid [] (str (java.util.UUID/randomUUID)))
 
 
 ;; We use [lat lon], but GeoJSON uses [lon lat].
+
+
 (defn- transpose-coord [[lat lon]]
   [lon lat])
 
-
 (defmulti geojson-for-geodesc :type)
-
 
 (defmethod geojson-for-geodesc :geojson [geodesc]
   (json/read-str (:desc geodesc)))
 
-
 (defn- multipoint-feature [coords]
   {:type :Feature
    :geometry {:type :MultiPoint
-               :coordinates (map transpose-coord coords)}})
-
+              :coordinates (map transpose-coord coords)}})
 
 (defmethod geojson-for-geodesc :points [geodesc]
   (multipoint-feature (:desc geodesc)))
 
-
 (defn- linestring-feature [coords]
   {:type :Feature
    :geometry {:type :LineString
-               :coordinates (map transpose-coord coords)}})
-
+              :coordinates (map transpose-coord coords)}})
 
 (defmethod geojson-for-geodesc :line [geodesc]
   (linestring-feature (:desc geodesc)))
 
-
 (defn- polygon-feature [coords-arrays]
   {:type :Feature
    :geometry {:type :Polygon
-               :coordinates (map #(map transpose-coord %) coords-arrays)}})
-
+              :coordinates (map #(map transpose-coord %) coords-arrays)}})
 
 (defmethod geojson-for-geodesc :polygon [geodesc]
   (polygon-feature (:desc geodesc)))
 
-
 (defrecord LeafletView [geodescs opts])
-
 
 (defn- parse-args [args]
   (loop [args args
          geodescs []
          options {}]
-   (if (not (seq args))
-     [geodescs options]
-     (let [arg (first args)
-           rstargs (next args)]
-       (if (keyword? arg)
-         (if (seq rstargs)
-           (recur (next rstargs)
-                  geodescs
-                  (assoc options arg (first rstargs)))
-           (throw (Exception. (str "No value specified for option " arg))))
-         (recur rstargs
-                (conj geodescs arg)
-                options))))))
-
+    (if (not (seq args))
+      [geodescs options]
+      (let [arg (first args)
+            rstargs (next args)]
+        (if (keyword? arg)
+          (if (seq rstargs)
+            (recur (next rstargs)
+                   geodescs
+                   (assoc options arg (first rstargs)))
+            (throw (Exception. (str "No value specified for option " arg))))
+          (recur rstargs
+                 (conj geodescs arg)
+                 options))))))
 
 (defn canonicalize-geodesc [default-type g]
   (let [type-desig (first g)
@@ -82,7 +72,6 @@
                 {:type default-type :desc g})]
     canon))
 
-
 (defn geo
   "Plots geometries on a map."
   [& args]
@@ -91,18 +80,18 @@
 
 
 ;; For backwards compatibility.
+
+
 (defn leaflet
   "Plots geometries on a map."
   [& args]
   (apply geo args))
-
 
 (defn geojson
   "Plots geometries on a map."
   [& args]
   (let [[geodescs opts] (parse-args args)]
     (LeafletView. (map #(canonicalize-geodesc :geojson %) geodescs) opts)))
-
 
 (def default-options
   {:width 400
@@ -120,6 +109,8 @@
 
 ;; Might as well use an ID for the CSS that theoretically some other
 ;; renderer could reference.
+
+
 (def leaflet-css-tag-id "leaflet-css")
 
 
@@ -136,6 +127,7 @@
 ;;
 ;; If the Leaflet javascript has already been fully loaded, we just
 ;; create our map.
+
 
 (def content-template
   "<div>
@@ -217,6 +209,8 @@ $(function () {
 
 
 ;; Implement the Gorilla renderable protocol.
+
+
 (extend-type LeafletView
   render/Renderable
   (render [self]

@@ -1,0 +1,32 @@
+name: Validate Pull Request
+
+on:
+  pull_request:
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/project.clj') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Install dependencies
+      run: |
+        lein deps
+    - name: Check formatting
+      run: lein cljfmt check
+    - name: Lint
+      run: lein clj-kondo --lint .
+    - name: Run tests / code coverage
+      run: |
+        lein test
+        lein cloverage
+        bash <(curl -s https://codecov.io/bash) -d

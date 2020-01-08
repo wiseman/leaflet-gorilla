@@ -1,5 +1,7 @@
 pom.xml
+.idea/
 *jar
+*.iml
 /lib/
 /classes/
 /targets/
